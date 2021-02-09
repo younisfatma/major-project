@@ -7,7 +7,7 @@ I will continue making my previous game better. It is a knoke off version of Aga
 - player name above the player
 - a restart button
 - different sized food, that make you grow differently depending on the size (food as an object)
-- auto matically generated obsticals that are sprites
+- auto matically generated obsticals that are sprites (object)
 - make food collision 
 
 
