@@ -1,16 +1,15 @@
 # Proposal
-I will continue making my previous game better. It is a knoke off version of Agario. 
+I will continue working on my previous game and add improvements.
 
 
 ## Needs To Have
+- different sized food, that make you grow differently depending on the size (food as an object)
+- auto matically generated obsticals that are sprites (object)
+- make food collision
 - a better start screen, where you choose your sprite at the begining
 - player name above the player
 - a restart button
-- different sized food, that make you grow differently depending on the size (food as an object)
-- auto matically generated obsticals that are sprites (object)
-- make food collision 
-
-
+ 
 ## Nice To Have
 - a map
 - some sort of point system
