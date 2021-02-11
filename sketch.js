@@ -3,9 +3,10 @@
 // Mr. Schellenberg
 // Major Project
 
-
-// Array for start screen
+//start/win/lose screens
 let start = {x: 0, y: 0, isAlive: true,};
+let win = true;
+let end = false;
 
 // Used to tell the time since the game started
 let seconds = 0;
@@ -18,7 +19,7 @@ let millisSinceGameStarted;
 // Images
 let bgImg, evilImg, hamsterImg, whaleImg, zombieImg, skeletonImg;
 let images = [];
-let imagenumber = 0;
+
 
 // Sounds
 let bgSound, lossSound, victorySound;
@@ -26,6 +27,10 @@ let millisSinceLossSoundPlayed = 0;
 
 // Font
 let font;
+
+// game variables
+let thePlayer, theObstacles;
+let theFoods= [];
 
 function preload(){
   // Images
@@ -37,17 +42,14 @@ function preload(){
   skeletonImg = loadImage ("assets/skeleton.png");
   images.push(evilImg, hamsterImg, zombieImg, whaleImg, skeletonImg);
 
-  //   // Sounds
-  //   bgSound = loadSound("assets/backgroundMusic.mp3");
-//   lossSound = loadSound("assets/loss.mp3");
-//   victorySound = loadSound("assets/Victory.mp3");
+  // Sounds
+  bgSound = loadSound("assets/backgroundMusic.mp3");
+  lossSound = loadSound("assets/loss.mp3");
+  victorySound = loadSound("assets/Victory.mp3");
 
-//   // Font
-//   font = loadFont("assets/ARCADECLASSIC.TTF");
+  // Font
+  font = loadFont("assets/ARCADECLASSIC.TTF");
 }
-
-let thePlayer, theObstacles;
-let theFoods= [];
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -65,49 +67,99 @@ function windowResized() {
 function draw() {
   background(255);
 
-  for (let i = theFoods.length-1; i > 0; i--){
-    theFoods[i].display();
-    theFoods[i].hit();
-    if(theFoods[i].eaten){ //only eat food that are smaller
-      theFoods.splice(i, 1);
-      thePlayer.diameter+=2;
+  if (win === false) {
+    for (let i = theFoods.length-1; i > 0; i--){
+      theFoods[i].display();
+      theFoods[i].hit();
+      if(theFoods[i].eaten){ //add only eat food that are smaller
+        theFoods.splice(i, 1);
+        thePlayer.radius+=2;
+      }
     }
+
+    thePlayer.display();
+    thePlayer.move();
+
+    theObstacles.display();
+    theObstacles.collide();
   }
 
-  thePlayer.display();
-  thePlayer.move();
+  time();
+  displayStart();
+  displayWonScreen();
+  displayLostScreen();
+}
 
-  theObstacles.display();
+// Start screen
+function displayStart() { 
+  if (start.isAlive) {
+    // image(bgImg, 0,0, width, height);
 
-  theObstacles.collide();
-  
+    fill("black");
+    textFont(font);
+    textSize(40);
+    textAlign(CENTER);
+    textStyle(BOLD);
+    text("CLICK TO START", width / 2, height / 2);
+    
+    textSize(18);
+    fill(50);
+    textStyle(NORMAL);
+    text("EAT AS MUCH FOOD AS YOU CAN TO WIN!", width/2, height*11/16);
+    text("Right Click to Change your Character", width/2, height*3/4);
+    text("Use WASD to Control", width/2, height*13/16);
+    
+    // Time value
+    millisSinceGameStarted = millis();
+  }
 }
 
 function time(){
-  if (millis() - millisSinceGameStarted - lastSecond >= 1){
+  if (millis() - millisSinceGameStarted - lastSecond >= 1){ 
     seconds +=1;
     lastSecond += 1000;
     if (seconds >= 60){
       seconds = 0;
       minutes +=1;
     }
+    spawnFood();
   }
-  fill("white");
+  textFont(font);
+  fill("black");
   text("Time  "+ minutes + ":"+ seconds, 80, 30); 
 }
 
 // Starts the game and controls color of the ball
 function mousePressed() {
-  let newFood = new Food;
-  theFoods.push(newFood);//make new food spawn based on time
-
+  if (start.isAlive === true) {
+    start.isAlive = false;
+    win = false;
+  }
   //Controls what skin to display
   if (thePlayer.imagenumber < 4){
-    this.imagenumber+=1;
+    thePlayer.imagenumber += 1;
   }
   else{
-    imagenumber=0;
+    thePlayer.imagenumber = 0;
   }
+
+  //restart buttonw
+  if(win === true && mouseX >=286 && mouseX <=591 && mouseY >=224 && mouseY<575){
+    setup();
+    start.isAlive = true;
+    console.log(mouseX, mouseY);
+    seconds = 0;
+    minutes= 0;
+    lastSecond = 0;
+    for (let i = theFoods.length; i >=0; i--){
+      theFoods.splice(i ,1);
+    }
+  }
+}
+
+function spawnFood(){
+  let newFood = new Food;
+  theFoods.push(newFood);//make new food spawn based on time
 }
 
 class Player{
@@ -115,7 +167,6 @@ class Player{
     this.x= width/2;
     this.y = height/2;
     this.radius = 20;
-    this.diameter = this.radius*2;
     this.speed = 5;
     this.color = color(255,255,255,0);
     this.imagenumber = 0;
@@ -124,12 +175,12 @@ class Player{
   display(){
     noStroke();
     fill(this.color);
-    ellipse(this.x, this.y, this.diameter, this.diameter);
+    ellipse(this.x, this.y, this.radius*2, this.radius*2);
     ellipseMode(CENTER);
 
     // Character skins
     imageMode(CENTER);
-    image(images[this.imagenumber], this.x, this.y, this.diameter, this.diameter );
+    image(images[this.imagenumber], this.x, this.y, this.radius*2, this.radius*2 );
   }
   
   move(){
@@ -163,20 +214,6 @@ class Player{
     }
   }
 
-  stopBall() {
-    if (this.x - this.radius < 0) {
-      this.x = this.radius;
-    }
-    if (this.x + this.radius > width) {
-      this.x = width - this.radius;
-    }
-    if (this.y - this.radius < 0) {
-      this.y = this.radius;
-    }
-    if (this.y + this.radius > height) {
-      this.y = height - this.radius;
-    }
-  }
   
   radius(){
     this.radius += 3;
@@ -184,12 +221,13 @@ class Player{
 }
 
 class Food{
-  constructor(shortRadius, largeRadius){
+  constructor(shortRadius, largeRadius){ //havent done anything with these values yet
     this.x = random(0, width);
     this.y = random(0, height);
     this.radius = random(5, 20);
     this.color = color(random(255), random(255), random(255));
     this.eaten = false;
+    
   }
   
   display(){
@@ -200,9 +238,10 @@ class Food{
   }
 
   hit(){
-    this.eaten = collideCircleCircle(thePlayer.x, thePlayer.y, thePlayer.diameter, this.x, this.y, this.radius);
+    this.eaten = collideCircleCircle(thePlayer.x, thePlayer.y, thePlayer.radius*2, this.x, this.y, this.radius*2);
     if (this.eaten){
       console.log("yum");
+      thePlayer.radius += this.radius/2;
     }
   }
 }
@@ -225,22 +264,58 @@ class Obstacle{
   }
 
   // move(){
-  //   if (this.x-this.length >= 0 && this.x + this.length <= width){
-  //     this.x += this.dx;
-  //   }
-  //   else if (this.y-this.length>=0 && this.y+this.length<=height){
-  //     this.y += this.dy;
-  //   }
   // }
 
   collide(){
-    this.hit= collideRectCircle(this.x, this.y, this.length, this.length, thePlayer.x, thePlayer.y, thePlayer.radius);
+    this.hit= collideRectCircle(this.x, this.y, this.length, this.length, thePlayer.x, thePlayer.y, thePlayer.radius*2);
     if (this.hit){
       console.log("ouch");
     }
-    if(this.hit && this.length < thePlayer.diameter && thePlayer.diameter >= 40){
-      thePlayer.diameter-=5;
+    if(this.hit && this.length <= thePlayer.radius*2 && thePlayer.radius*2 >= 40){
+      thePlayer.radius-=5;
     }
   }
 }
 
+// If the player has grown more than width/6 the player wins the game
+function displayWonScreen() {
+  if (thePlayer.radius*2 > width / 4) {
+    // Victory sound 
+    bgSound.pause();
+    victorySound.play();
+
+    win = true;
+    background(0);
+    fill("green");
+    textSize(50);
+    textAlign(CENTER);
+    textStyle(BOLD);
+    text("YOU WON", width / 2, height / 2);
+
+    rectMode(CENTER);
+    rect(width/2, height*3/4, 200, 70);
+    fill("white");
+    text("RESTART", width/2, height*3/4);
+  }
+}
+
+// If player hits green obstacal they lose
+function displayLostScreen(){
+  if (end){
+    // Plays loss sound for 3 seconds
+    bgSound.pause();
+    if (millis() - millisSinceLossSoundPlayed < 3000){
+      lossSound.play();
+    }
+    else{
+      lossSound.stop();
+    }
+
+    background(0);
+    fill("red");
+    textSize(40);
+    textAlign(CENTER);
+    textStyle(BOLD);
+    text("YOU LOST", width / 2, height / 2);
+  }
+}
