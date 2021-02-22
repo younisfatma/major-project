@@ -20,6 +20,9 @@ let millisSinceGameStarted;
 let bgImg, evilImg, hamsterImg, whaleImg, zombieImg, skeletonImg;
 let images = [];
 
+// used to switch colors
+let colorOptions = ["linen", "lightgrey", "aqua", "pink", "yellow", "DarkOrchid"];
+let colorSlide = 0;
 
 // Sounds
 let bgSound, lossSound, victorySound;
@@ -27,6 +30,7 @@ let millisSinceLossSoundPlayed = 0;
 
 // Font
 let font;
+let playerName; //text
 
 // game variables
 let thePlayer, theObstacles;
@@ -53,10 +57,14 @@ function preload(){
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  thePlayer = new Player();
-  theObstacles = new Obstacle;
+  playerName = window.prompt("Enter player name: ");
+
   // Play sound
   // bgSound.play();
+
+  //make obstacles
+  thePlayer = new Player();
+  theObstacles = new Obstacle;
 }
 
 // When the window is resized the canvas is also resized
@@ -66,17 +74,9 @@ function windowResized() {
 
 function draw() {
   background(255);
-
   if (win === false) {
-    for (let i = theFoods.length-1; i > 0; i--){
-      theFoods[i].display();
-      theFoods[i].hit();
-      if(theFoods[i].eaten){ //add only eat food that are smaller
-        theFoods.splice(i, 1);
-        thePlayer.radius+=2;
-      }
-    }
-
+    checkFood();
+  
     thePlayer.display();
     thePlayer.move();
 
@@ -92,6 +92,11 @@ function draw() {
 
 // Start screen
 function displayStart() { 
+  if (keyIsPressed) {
+    start.isAlive = false;
+    win = false;
+  }
+
   if (start.isAlive) {
     // image(bgImg, 0,0, width, height);
 
@@ -100,19 +105,60 @@ function displayStart() {
     textSize(40);
     textAlign(CENTER);
     textStyle(BOLD);
-    text("CLICK TO START", width / 2, height / 2);
+    text("PRESS ANY KEY TO START", width / 2, height / 2);
+
+    //choosing the player skin
+    thePlayer.display();
+    //button
+    fill("blue");
+    rectMode(CENTER);
+    rect(width*3/4, height*3/4, 100, 50);
+    fill("white");
+    textSize(30);
+    textAlign(CENTER);
+    text("color", width*3/4, height*3/4);
     
-    textSize(18);
-    fill(50);
-    textStyle(NORMAL);
-    text("EAT AS MUCH FOOD AS YOU CAN TO WIN!", width/2, height*11/16);
-    text("Right Click to Change your Character", width/2, height*3/4);
-    text("Use WASD to Control", width/2, height*13/16);
+    fill("green");
+    rectMode(CENTER);
+    rect(width*3/4, height*3/4-50, 100, 50);
+    fill("white");
+    textSize(30);
+    textAlign(CENTER);
+    text("image", width*3/4, height*3/4-50);
+
+    //color change
+    if (mouseX >= width*3/4-50 && mouseX <= width*3/4+50 && mouseY >= height*3/4-25 && mouseY<=height*3/4+25){
+      console.log("true");
+      thePlayer.color = colorOptions[0+colorSlide];
+      if (colorSlide < 5){
+        colorSlide+=1;
+      }
+      else{
+        colorSlide=0;
+      }
+    }
+    //image change
+    if (mouseX >= width*3/4-50 && mouseX <= width*3/4+50 && mouseY >= height*3/4-25-50 && mouseY<=height*3/4+25-50){
+      if (thePlayer.imagenumber < 4){
+        thePlayer.imagenumber += 1; 
+      }
+      else{
+        thePlayer.imagenumber = 0;
+      }
+    }
+
+    // textSize(18);
+    // fill(50);
+    // textStyle(NORMAL);
+    // text("EAT AS MUCH FOOD AS YOU CAN TO WIN!", width/2, height*11/16);
+    // text("Right Click to Change your Character", width/2, height*3/4);
+    // text("Use WASD to Control", width/2, height*13/16);
     
     // Time value
     millisSinceGameStarted = millis();
   }
 }
+
 
 function time(){
   if (millis() - millisSinceGameStarted - lastSecond >= 1){ 
@@ -131,19 +177,7 @@ function time(){
 
 // Starts the game and controls color of the ball
 function mousePressed() {
-  if (start.isAlive === true) {
-    start.isAlive = false;
-    win = false;
-  }
-  //Controls what skin to display
-  if (thePlayer.imagenumber < 4){
-    thePlayer.imagenumber += 1;
-  }
-  else{
-    thePlayer.imagenumber = 0;
-  }
-
-  //restart buttonw
+  //restart button
   if(win === true && mouseX >=286 && mouseX <=591 && mouseY >=224 && mouseY<575){
     setup();
     start.isAlive = true;
@@ -161,14 +195,25 @@ function spawnFood(){
   let newFood = new Food;
   theFoods.push(newFood);//make new food spawn based on time
 }
+function checkFood(){
+  for (let i = theFoods.length-1; i > 0; i--){
+    theFoods[i].display();
+    theFoods[i].hit();
+    if(theFoods[i].eaten){ //add only eat food that are smaller
+      theFoods.splice(i, 1);
+      thePlayer.radius+=2;
+    }
+  }
+}
 
 class Player{
   constructor(){
     this.x= width/2;
-    this.y = height/2;
+    this.y = height*3/4;
     this.radius = 20;
     this.speed = 5;
-    this.color = color(255,255,255,0);
+    this.color = "red";
+    //(255,255,255,0);
     this.imagenumber = 0;
   }
 
@@ -181,6 +226,8 @@ class Player{
     // Character skins
     imageMode(CENTER);
     image(images[this.imagenumber], this.x, this.y, this.radius*2, this.radius*2 );
+
+    text(playerName, this.x+this.radius*2+25, this.y);
   }
   
   move(){
@@ -242,6 +289,7 @@ class Food{
     if (this.eaten){
       console.log("yum");
       thePlayer.radius += this.radius/2;
+      thePlayer.speed-=0.05;
     }
   }
 }
