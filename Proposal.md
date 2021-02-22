@@ -9,8 +9,11 @@ I will continue working on my previous game and add improvements.
 - a better start screen, where you choose your sprite at the begining
 - player name above the player
 - ~~a restart button~~
+
  
 ## Nice To Have
 - a map
 - some sort of point system
 - other "players"
+- background music
+- sound when food is eaten
