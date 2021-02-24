@@ -25,7 +25,7 @@ let colorOptions = ["linen", "lightgrey", "aqua", "pink", "yellow", "DarkOrchid"
 let colorSlide = 0;
 
 // Sounds
-let bgSound, lossSound, victorySound;
+let bgSound, victorySound, eatSound, shrinkSound;
 let millisSinceLossSoundPlayed = 0;
 
 // Font
@@ -33,8 +33,9 @@ let font;
 let playerName; //text
 
 // game variables
-let thePlayer, theObstacles;
-let theFoods= [];
+let thePlayer;
+let theFoods = [];
+let theObstacles = [];
 let points = 0;
 
 function preload(){
@@ -45,19 +46,19 @@ function preload(){
   zombieImg = loadImage ("assets/zombie.png");
   whaleImg = loadImage ("assets/whale.png");
   skeletonImg = loadImage ("assets/skeleton.png");
-  obsImage =loadImage ("assets/obs.png");
-  dragonImage =loadImage ("assets/dragon.png");
-  octopusImage=loadImage ("assets/octopus.png");
-  sharImage=loadImage ("assets/shar.png");
-  pikaImage=loadImage ("assets/pika.png");
-
+  obsImage = loadImage ("assets/obs.png");
+  dragonImage = loadImage ("assets/dragon.png");
+  octopusImage = loadImage ("assets/octopus.png");
+  sharImage = loadImage ("assets/shar.png");
+  pikaImage = loadImage ("assets/pika.png");
 
   images.push(dragonImage, octopusImage, sharImage, pikaImage);
 
   // Sounds
   bgSound = loadSound("assets/backgroundMusic.mp3");
-  lossSound = loadSound("assets/loss.mp3");
   victorySound = loadSound("assets/Victory.mp3");
+  eatSound = loadSound("assets/eat.mp3");
+  shrinkSound = loadSound("assets/click.mp3");
 
   // Font
   font = loadFont("assets/ARCADECLASSIC.TTF");
@@ -71,8 +72,9 @@ function setup() {
   // bgSound.play();
 
   //make obstacles
-  thePlayer = new Player();
-  theObstacles = new Obstacle;
+  thePlayer = new Player;
+  let oneObstacle = new Obstacle;
+  theObstacles.push(oneObstacle);
 }
 
 // When the window is resized the canvas is also resized
@@ -83,19 +85,18 @@ function windowResized() {
 function draw() {
   background(255);
   if (win === false) {
-    checkFood();
+    foods();
   
     thePlayer.display();
     thePlayer.move();
 
-    theObstacles.display();
-    theObstacles.collide();
+    obstacles();
   }
 
   time();
   displayStart();
   displayWonScreen();
-  displayLostScreen();
+//   displayLostScreen();
 }
 
 // Start screen
@@ -186,6 +187,10 @@ function mousePressed() {
       }
     }
   }
+  else{
+    let oneObstacle = new Obstacle;
+    theObstacles.push(oneObstacle);
+  }
 
 
   //restart button
@@ -206,7 +211,7 @@ function spawnFood(){
   let newFood = new Food;
   theFoods.push(newFood);//make new food spawn based on time
 }
-function checkFood(){
+function foods(){
   for (let i = theFoods.length-1; i > 0; i--){
     theFoods[i].display();
     theFoods[i].hit();
@@ -217,13 +222,20 @@ function checkFood(){
   }
 }
 
+function obstacles(){
+  for (let i = 0; i < theObstacles.length; i++){
+    theObstacles[i].display();
+    theObstacles[i].collide();
+
+  }
+}
 class Player{
   constructor(){
     this.x= width/2;
     this.y = height*3/4;
     this.radius = 20;
     this.speed = 5;
-    this.color = "red";
+    this.color = "white";
     //(255,255,255,0);
     this.imagenumber = 0;
   }
@@ -238,6 +250,7 @@ class Player{
     imageMode(CENTER);
     image(images[this.imagenumber], this.x, this.y, this.radius*2, this.radius*2 );
 
+    //display's the player name
     text(playerName, this.x+this.radius*2+25, this.y);
   }
   
@@ -311,10 +324,12 @@ class Obstacle{
     this.length = random(50, 100);
     this.x = random(0, width-this.length);
     this.y = random(0, height-this.length);
+    this.direction = "up";
     this.dx = random(1, 5);
     this.dy = random(1, 5);
     this.hit= false;
     this.color = "lime";
+    this.move = random(1,2);
   }
 
   display(){
@@ -324,6 +339,18 @@ class Obstacle{
 
     imageMode(CENTER);
     image(obsImage, this.x, this.y, this.length, this.length);
+  }
+
+  move(){
+    if (this.move === 2){
+      if (this.direction === "up"){
+        this.x += this.dx;
+        this.direction === "down";
+      }
+      else if(this.direction === "down"){
+        this.y+= this.dy;
+      }
+    }
   }
 
   collide(){
@@ -350,10 +377,20 @@ function displayWonScreen() {
     textSize(50);
     textAlign(CENTER);
     textStyle(BOLD);
-    text("YOU WON ", width / 2, height / 2);
+    text("YOU WON ", width / 2, height / 4);
 
-    text("point" + points.toPrecision(3), width/2, height/4);
+    //displays points
+    if (points>=100){
+      text("points" + points.toPrecision(3), width/2, height/2);
+    }
+    else if (points >= 1000){
+      text("point" + points.toPrecision(4), width/2, height/2);
+    }
+    else{
+      text("point" + points.toPrecision(2), width/2, height/2);
+    }
 
+    //displays restart button
     rectMode(CENTER);
     rect(width/2, height*3/4, 200, 70);
     fill("white");
@@ -361,23 +398,23 @@ function displayWonScreen() {
   }
 }
 
-// If player hits green obstacal they lose
-function displayLostScreen(){
-  if (end){
-    // Plays loss sound for 3 seconds
-    bgSound.pause();
-    if (millis() - millisSinceLossSoundPlayed < 3000){
-      lossSound.play();
-    }
-    else{
-      lossSound.stop();
-    }
+// // If player hits green obstacal they lose
+// function displayLostScreen(){
+//   if (end){
+//     // Plays loss sound for 3 seconds
+//     bgSound.pause();
+//     if (millis() - millisSinceLossSoundPlayed < 3000){
+//       lossSound.play();
+//     }
+//     else{
+//       lossSound.stop();
+//     }
 
-    background(0);
-    fill("red");
-    textSize(40);
-    textAlign(CENTER);
-    textStyle(BOLD);
-    text("YOU LOST", width / 2, height / 2);
-  }
-}
+//     background(0);
+//     fill("red");
+//     textSize(40);
+//     textAlign(CENTER);
+//     textStyle(BOLD);
+//     text("YOU LOST", width / 2, height / 2);
+//   }
+// }
