@@ -133,27 +133,6 @@ function displayStart() {
     textAlign(CENTER);
     text("image", width*3/4, height*3/4-50);
 
-    //color change
-    if (mouseX >= width*3/4-50 && mouseX <= width*3/4+50 && mouseY >= height*3/4-25 && mouseY<=height*3/4+25){
-      console.log("true");
-      thePlayer.color = colorOptions[0+colorSlide];
-      if (colorSlide < 5){
-        colorSlide+=1;
-      }
-      else{
-        colorSlide=0;
-      }
-    }
-    //image change
-    if (mouseX >= width*3/4-50 && mouseX <= width*3/4+50 && mouseY >= height*3/4-25-50 && mouseY<=height*3/4+25-50){
-      if (thePlayer.imagenumber < 3){
-        thePlayer.imagenumber += 1; 
-      }
-      else{
-        thePlayer.imagenumber = 0;
-      }
-    }
-
     // textSize(18);
     // fill(50);
     // textStyle(NORMAL);
@@ -184,6 +163,30 @@ function time(){
 
 // Starts the game and controls color of the ball
 function mousePressed() {
+  if (start.isAlive){
+    //color change
+    if (mouseX >= width*3/4-50 && mouseX <= width*3/4+50 && mouseY >= height*3/4-25 && mouseY<=height*3/4+25){
+      console.log("true");
+      thePlayer.color = colorOptions[0+colorSlide];
+      if (colorSlide < 5){
+        colorSlide+=1;
+      }
+      else{
+        colorSlide=0;
+      }
+    }
+    //image change
+    if (mouseX >= width*3/4-50 && mouseX <= width*3/4+50 && mouseY >= height*3/4-25-50 && mouseY<=height*3/4+25-50){
+      if (thePlayer.imagenumber < 3){
+        thePlayer.imagenumber += 1; 
+      }
+      else{
+        thePlayer.imagenumber = 0;
+      }
+    }
+  }
+
+
   //restart button
   if(win === true && mouseX >=286 && mouseX <=591 && mouseY >=224 && mouseY<575){
     setup();
