@@ -35,6 +35,7 @@ let playerName; //text
 // game variables
 let thePlayer, theObstacles;
 let theFoods= [];
+let points = 0;
 
 function preload(){
   // Images
@@ -300,6 +301,7 @@ class Food{
       console.log("yum");
       thePlayer.radius += this.radius/2;
       thePlayer.speed-=0.05;
+      points += this.radius/2;
     }
   }
 }
@@ -348,7 +350,9 @@ function displayWonScreen() {
     textSize(50);
     textAlign(CENTER);
     textStyle(BOLD);
-    text("YOU WON", width / 2, height / 2);
+    text("YOU WON ", width / 2, height / 2);
+
+    text("point" + points.toPrecision(3), width/2, height/4);
 
     rectMode(CENTER);
     rect(width/2, height*3/4, 200, 70);
