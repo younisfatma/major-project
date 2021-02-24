@@ -17,7 +17,7 @@ let timeLastAddeddFood = 0;
 let millisSinceGameStarted;
 
 // Images
-let bgImg, evilImg, hamsterImg, whaleImg, zombieImg, skeletonImg;
+let bgImg, evilImg, hamsterImg, whaleImg, zombieImg, skeletonImg, obsImage, dragonImage, octopusImage, sharImage, pikaImage;
 let images = [];
 
 // used to switch colors
@@ -44,7 +44,14 @@ function preload(){
   zombieImg = loadImage ("assets/zombie.png");
   whaleImg = loadImage ("assets/whale.png");
   skeletonImg = loadImage ("assets/skeleton.png");
-  images.push(evilImg, hamsterImg, zombieImg, whaleImg, skeletonImg);
+  obsImage =loadImage ("assets/obs.png");
+  dragonImage =loadImage ("assets/dragon.png");
+  octopusImage=loadImage ("assets/octopus.png");
+  sharImage=loadImage ("assets/shar.png");
+  pikaImage=loadImage ("assets/pika.png");
+
+
+  images.push(dragonImage, octopusImage, sharImage, pikaImage);
 
   // Sounds
   bgSound = loadSound("assets/backgroundMusic.mp3");
@@ -139,7 +146,7 @@ function displayStart() {
     }
     //image change
     if (mouseX >= width*3/4-50 && mouseX <= width*3/4+50 && mouseY >= height*3/4-25-50 && mouseY<=height*3/4+25-50){
-      if (thePlayer.imagenumber < 4){
+      if (thePlayer.imagenumber < 3){
         thePlayer.imagenumber += 1; 
       }
       else{
@@ -308,14 +315,14 @@ class Obstacle{
   display(){
     fill(this.color);
     noStroke();
-    rect(this.x, this.y, this.length, this.length);
+    ellipse(this.x, this.y, this.length, this.length);
+
+    imageMode(CENTER);
+    image(obsImage, this.x, this.y, this.length, this.length);
   }
 
-  // move(){
-  // }
-
   collide(){
-    this.hit= collideRectCircle(this.x, this.y, this.length, this.length, thePlayer.x, thePlayer.y, thePlayer.radius*2);
+    this.hit= collideCircleCircle(this.x, this.y, this.length, thePlayer.x, thePlayer.y, thePlayer.radius*2);
     if (this.hit){
       console.log("ouch");
     }
