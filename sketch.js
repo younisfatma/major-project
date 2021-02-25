@@ -26,7 +26,7 @@ let colorSlide = 0;
 
 // Sounds
 let bgSound, victorySound, eatSound, shrinkSound;
-let millisSinceLossSoundPlayed = 0;
+let victorySoundOn;
 
 // Font
 let font;
@@ -40,12 +40,12 @@ let points = 0;
 
 function preload(){
   // Images
-  bgImg = loadImage("assets/bg.png");
-  evilImg = loadImage ("assets/evil.png");
-  hamsterImg = loadImage ("assets/hamster.png");
-  zombieImg = loadImage ("assets/zombie.png");
-  whaleImg = loadImage ("assets/whale.png");
-  skeletonImg = loadImage ("assets/skeleton.png");
+  // bgImg = loadImage("assets/bg.png");
+  // evilImg = loadImage ("assets/evil.png");
+  // hamsterImg = loadImage ("assets/hamster.png");
+  // zombieImg = loadImage ("assets/zombie.png");
+  // whaleImg = loadImage ("assets/whale.png");
+  // skeletonImg = loadImage ("assets/skeleton.png");
   obsImage = loadImage ("assets/obs.png");
   dragonImage = loadImage ("assets/dragon.png");
   octopusImage = loadImage ("assets/octopus.png");
@@ -57,6 +57,7 @@ function preload(){
   // Sounds
   bgSound = loadSound("assets/backgroundMusic.mp3");
   victorySound = loadSound("assets/Victory.mp3");
+  victorySoundOn = false;
   eatSound = loadSound("assets/eat.mp3");
   shrinkSound = loadSound("assets/click.mp3");
 
@@ -69,7 +70,7 @@ function setup() {
   playerName = window.prompt("Enter player name: ");
 
   // Play sound
-  // bgSound.play();
+  bgSound.play();
 
   //make obstacles
   thePlayer = new Player;
@@ -201,42 +202,45 @@ function mousePressed() {
     seconds = 0;
     minutes= 0;
     lastSecond = 0;
-    for (let i = theFoods.length; i >=0; i--){
+    for (let i = theFoods.length-1; i >=0; i--){
       theFoods.splice(i ,1);
     }
   }
 }
-
+//makes new food
 function spawnFood(){
   let newFood = new Food;
-  theFoods.push(newFood);//make new food spawn based on time
+  theFoods.push(newFood);
 }
+
+//displays and removes food
 function foods(){
-  for (let i = theFoods.length-1; i > 0; i--){
+  for (let i = theFoods.length-1; i >= 0; i--){
     theFoods[i].display();
+    //checks for collision
     theFoods[i].hit();
-    if(theFoods[i].eaten){ //add only eat food that are smaller
+    if(theFoods[i].eaten){ 
       theFoods.splice(i, 1);
       thePlayer.radius+=2;
     }
   }
 }
 
+//displays obstacles and checks for collision
 function obstacles(){
-  for (let i = 0; i < theObstacles.length; i++){
+  for (let i = theObstacles.length-1; i >= 0; i--){
     theObstacles[i].display();
     theObstacles[i].collide();
-
   }
 }
+
 class Player{
   constructor(){
     this.x= width/2;
     this.y = height*3/4;
     this.radius = 20;
     this.speed = 5;
-    this.color = "white";
-    //(255,255,255,0);
+    this.color = "black";
     this.imagenumber = 0;
   }
 
@@ -311,6 +315,7 @@ class Food{
   hit(){
     this.eaten = collideCircleCircle(thePlayer.x, thePlayer.y, thePlayer.radius*2, this.x, this.y, this.radius*2);
     if (this.eaten){
+      eatSound.play();
       console.log("yum");
       thePlayer.radius += this.radius/2;
       thePlayer.speed-=0.05;
@@ -322,11 +327,11 @@ class Food{
 class Obstacle{
   constructor(){
     this.length = random(50, 100);
-    this.x = random(0, width-this.length);
-    this.y = random(0, height-this.length);
-    this.direction = "up";
-    this.dx = random(1, 5);
-    this.dy = random(1, 5);
+    this.x = random(0, width - this.length);
+    this.y = random(0, height - this.length);
+    // this.direction = "up";
+    // this.dx = random(1, 5);
+    // this.dy = random(1, 5);
     this.hit= false;
     this.color = "lime";
     this.move = random(1,2);
@@ -341,17 +346,17 @@ class Obstacle{
     image(obsImage, this.x, this.y, this.length, this.length);
   }
 
-  move(){
-    if (this.move === 2){
-      if (this.direction === "up"){
-        this.x += this.dx;
-        this.direction === "down";
-      }
-      else if(this.direction === "down"){
-        this.y+= this.dy;
-      }
-    }
-  }
+  // move(){
+  //   if (this.move === 2){
+  //     if (this.direction === "up"){
+  //       this.x += this.dx;
+  //       this.direction === "down";
+  //     }
+  //     else if(this.direction === "down"){
+  //       this.y+= this.dy;
+  //     }
+  //   }
+  // }
 
   collide(){
     this.hit= collideCircleCircle(this.x, this.y, this.length, thePlayer.x, thePlayer.y, thePlayer.radius*2);
@@ -360,6 +365,7 @@ class Obstacle{
     }
     if(this.hit && this.length <= thePlayer.radius*2 && thePlayer.radius*2 >= 40){
       thePlayer.radius-=5;
+      shrinkSound.play();
     }
   }
 }
@@ -368,8 +374,11 @@ class Obstacle{
 function displayWonScreen() {
   if (thePlayer.radius*2 > width / 4) {
     // Victory sound 
-    bgSound.pause();
-    victorySound.play();
+    if(victorySoundOn === false){
+      bgSound.pause();
+      victorySound.play();
+      victorySoundOn = true;
+    }
 
     win = true;
     background(0);
@@ -381,13 +390,13 @@ function displayWonScreen() {
 
     //displays points
     if (points>=100){
-      text("points" + points.toPrecision(3), width/2, height/2);
+      text("points  " + points.toPrecision(3), width/2, height/2);
     }
     else if (points >= 1000){
-      text("point" + points.toPrecision(4), width/2, height/2);
+      text("point  "+ points.toPrecision(4), width/2, height/2);
     }
     else{
-      text("point" + points.toPrecision(2), width/2, height/2);
+      text("points   " + points.toPrecision(2), width/2, height/2);
     }
 
     //displays restart button

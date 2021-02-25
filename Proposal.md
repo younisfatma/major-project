@@ -10,8 +10,8 @@ I will continue working on my previous game and add improvements.
 - ~~a restart button~~
  
 ## Nice To Have
-- background music //thursday
-- sound when food is eaten //thursday
+- ~~background music~~
+- ~~sound when food is eaten~~
 - ~~some sort of point system~~
 - a map //wed && friday
 - other "players"
