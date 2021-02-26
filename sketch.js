@@ -3,11 +3,11 @@
 // Mr. Schellenberg
 // Major Project
 
-//rules
+// Rules:
 // use WASD to control character
-//you can hide under the green circle, as soon as you grow larger than the circle you will start to take damage
+// you can hide under the green circle, as soon as you grow larger than the circle you will start to take damage
 
-//start/win screens
+// start/win screens
 let start = {x: 0, y: 0, isAlive: true,};
 let win = true;
 let reset;
@@ -70,7 +70,7 @@ function setup() {
   // Play sound
   bgSound.play();
 
-  //makes objects
+  // makes objects
   thePlayer = new Player;
   let oneObstacle = new Obstacle;
   theObstacles.push(oneObstacle);
@@ -105,7 +105,7 @@ function displayStart() {
     textStyle(BOLD);
     text("PRESS ANY KEY TO START", width / 2, height / 2);
 
-    //buttons for changing skins and colors
+    // buttons for changing skins and colors
     fill("blue");
     rectMode(CENTER);
     rect(width*3/4, height*3/4, 100, 50);
@@ -122,7 +122,7 @@ function displayStart() {
     textAlign(CENTER);
     text("image", width*3/4, height*3/4-50);
 
-    //display player
+    // display player
     thePlayer.display();
 
     // Time value
@@ -130,7 +130,7 @@ function displayStart() {
   }
 }
 
-//displays time
+// displays time
 function time(){
   if (millis() - millisSinceGameStarted - lastSecond >= 1){ 
     seconds +=1;
@@ -149,7 +149,7 @@ function time(){
 
 function mousePressed() {
   if (start.isAlive){
-    //color change
+    // color change
     if (mouseX >= width*3/4-50 && mouseX <= width*3/4+50 && mouseY >= height*3/4-25 && mouseY<=height*3/4+25){
       console.log("true");
       thePlayer.color = colorOptions[0+colorSlide];
@@ -160,7 +160,7 @@ function mousePressed() {
         colorSlide=0;
       }
     }
-    //skin change
+    // skin change
     if (mouseX >= width*3/4-50 && mouseX <= width*3/4+50 && mouseY >= height*3/4-25-50 && mouseY<=height*3/4+25-50){
       if (thePlayer.imagenumber < 3){
         thePlayer.imagenumber += 1; 
@@ -171,7 +171,7 @@ function mousePressed() {
     }
   }
 
-  //restart button
+  // restart button
   if(win === true && mouseX >=286 && mouseX <=591 && mouseY >=224 && mouseY<575 && reset === true){
     setup();
     start.isAlive = true;
@@ -186,17 +186,17 @@ function mousePressed() {
   }
 }
 
-//makes new food
+// makes new food
 function spawnFood(){
   let newFood = new Food;
   theFoods.push(newFood);
 }
 
-//displays and removes food
+// displays and removes food
 function foods(){
   for (let i = theFoods.length-1; i >= 0; i--){
     theFoods[i].display();
-    //checks for collision
+    // checks for collision
     theFoods[i].hit();
     if(theFoods[i].eaten){ 
       theFoods.splice(i, 1);
@@ -205,7 +205,7 @@ function foods(){
   }
 }
 
-//displays obstacles and checks for collision
+// displays obstacles and checks for collision
 function obstacles(){
   for (let i = theObstacles.length-1; i >= 0; i--){
     theObstacles[i].display();
@@ -233,7 +233,7 @@ class Player{
     imageMode(CENTER);
     image(images[this.imagenumber], this.x, this.y, this.radius*2, this.radius*2 );
 
-    //display's the player name
+    // display's the player name
     text(playerName, this.x, this.y - this.radius - 25);
   }
   
@@ -253,7 +253,7 @@ class Player{
       this.y += this.speed;
     }
 
-    //prevent the player from flying off the screen
+    // prevent the player from flying off the screen
     if (this.x - this.radius < 0) {
       this.x = this.radius;
     }
@@ -343,8 +343,7 @@ function displayWonScreen() {
       victorySoundOn = true;
     }
 
- 
-    //text
+    // text
     background(0);
     fill("green");
     textSize(50);
@@ -352,7 +351,7 @@ function displayWonScreen() {
     textStyle(BOLD);
     text("YOU WON ", width / 2, height / 4);
 
-    //displays points
+    // displays points
     if (points>=100){
       text("points  " + points.toPrecision(3), width/2, height/2);
     }
@@ -363,13 +362,13 @@ function displayWonScreen() {
       text("points   " + points.toPrecision(2), width/2, height/2);
     }
 
-    //displays restart button
+    // displays restart button
     rectMode(CENTER);
     rect(width/2, height*3/4, 200, 70);
     fill("white");
     text("RESTART", width/2, height*3/4);
 
-    //reseting some values
+    // reseting some values
     win = true;
     reset = true;
   }
