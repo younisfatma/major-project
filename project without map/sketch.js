@@ -42,6 +42,7 @@ let theFoods = [];
 let theObstacles = [];
 let points = 0;
 
+
 function preload(){
   // Images
   obsImage = loadImage ("assets/obs.png");

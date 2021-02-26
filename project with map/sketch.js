@@ -38,31 +38,12 @@ let playerName;
 
 // game variables
 let thePlayer;
-let theFoods = [];
-let theObstacles = [];
+let theFoods;
+let theObstacles;
 let points = 0;
-
-//movement
-let enviorment = {
-  xMin: 0,
-  yMin: 0,
-  xMax: 1000,
-  yMax: 1000
-};
-let enviormentBack = {
-  image: 0,
-  x: 0,
-  y: 0,
-  width: 10,
-  height: 10
-};
-let visibleScreen = {
-  xMin: 0,
-  yMin: 0,
-  xMax: 1000,
-  yMax: 1000
-};
-
+let maxX= 1000;
+let maxY = 1000;
+let secondsSinceSpawnedObstacle = 0;
 
 function preload(){
   // Images
@@ -94,26 +75,11 @@ function setup() {
 
   // makes objects
   thePlayer = new Player;
+
+  theFoods = [];
+  theObstacles = [];
   let oneObstacle = new Obstacle;
   theObstacles.push(oneObstacle);
-
-  // the size of the enviorment
-  enviorment.xMin = 0;
-  enviorment.xMax = width*enviormentBack.width;
-  enviorment.yMin = 0;
-  enviorment.yMax = height*enviormentBack.height;
-
-  // enviormentBack
-  enviormentBack.xMin = 0;
-  enviormentBack.xMax = width*enviormentBack.width;
-  enviormentBack.yMin = 0;
-  enviormentBack.yMax = height*enviormentBack.height;
-
-  // the screen thats on the canvas
-  visibleScreen.xMin = 0;
-  visibleScreen.xMax = width;
-  visibleScreen.yMin = 0;
-  visibleScreen.yMax = height;  
 }
 
 function draw() {
@@ -179,6 +145,7 @@ function time(){
       seconds = 0;
       minutes +=1;
     }
+    spawnObstacle();
     spawnFood();
   }
   textFont(font);
@@ -220,16 +187,26 @@ function mousePressed() {
     seconds = 0;
     minutes= 0;
     lastSecond = 0;
-    for (let i = theFoods.length-1; i >=0; i--){
-      theFoods.splice(i ,1);
-    }
+    // for (let i = theFoods.length-1; i >=0; i--){
+    //   theFoods.splice(i ,1);
+    // }
   }
 }
 
 // makes new food
 function spawnFood(){
-  let newFood = new Food;
-  theFoods.push(newFood);
+  for (let i = 2; i >0 ; i--){
+    let newFood = new Food;
+    theFoods.push(newFood);
+  }
+}
+
+function spawnObstacle(){
+  if (seconds - secondsSinceSpawnedObstacle >= 10){
+    let oneObstacle = new Obstacle;
+    theObstacles.push(oneObstacle);
+    secondsSinceSpawnedObstacle = seconds;
+  }
 }
 
 // displays and removes food
@@ -256,7 +233,7 @@ function obstacles(){
 class Player{
   constructor(){
     this.x= width/2;
-    this.y = height*3/4;
+    this.y =  height/2;  //height*3/4;
     this.radius = 20;
     this.speed = 5;
     this.color = "black";
@@ -276,66 +253,63 @@ class Player{
     // display's the player name
     text(playerName, this.x, this.y - this.radius - 25);
   }
+
+  move(){
+    if (keyIsDown(65)) { //a
+      for (let i = theFoods.length-1; i >= 0; i--){
+        theFoods[i].x += this.speed;
+      }
+      for (let i = theObstacles.length-1; i >= 0; i--){
+        theObstacles[i].x += this.speed;
+      }
+      maxX += this.speed;
+        //move barrier
+    }
+    if (keyIsDown(68)) { ///s
+      for (let i = theFoods.length-1; i >= 0; i--){
+        theFoods[i].x -= this.speed;
+      }
+      for (let i = theObstacles.length-1; i >= 0; i--){
+        theObstacles[i].x -= this.speed;
+      }maxX -= this.speed;
+    }
+    if (keyIsDown(87)) { //w
+   
+      for (let i = theFoods.length-1; i >= 0; i--){
+        theFoods[i].y += this.speed;
+      }
+      for (let i = theObstacles.length-1; i >= 0; i--){
+        theObstacles[i].y += this.speed;
+      }
+      maxY += this.speed;
+      // this.y -= this.speed;
+    }
+    if (keyIsDown(83)) { //d
+      for (let i = theFoods.length-1; i >= 0; i--){
+        theFoods[i].y -= this.speed;
+      }
+      for (let i = theObstacles.length-1; i >= 0; i--){
+        theObstacles[i].y -= this.speed;
   
-  move(xMin = enviorment.xMin, yMin = enviorment.yMin, xMax = enviorment.xMax, yMax = enviorment.yMax){
-    //x-axis
-    if (this.x - this.radius < xMin) {
-      this.x += this.speed;
-      enviormentBack.x -= this.speed;
-    }
-    else if (this.x + this.radius > xMax - width) {
-      this.x -= this.speed;
-      enviormentBack.x += this.speed;
-    }
-    else {
-      if (keyIsDown(65)) { //a
-        this.x -= this.speed;
-        enviormentBack.x += this.speed;
-      }
-      if (keyIsDown(68)) { ///d
-        this.x += this.speed;
-        enviormentBack.y -= this.speed;
-      }
-      
+      maxY -= this.speed;
+      // this.y += this.speed;
     }
 
-    //y-axis
-    if (this.y - this.radius< yMin) {
-      this.y += this.speed;
-      enviormentBack.y -= this.speed;
+    // prevent the player from flying off the screen
+    if (this.x - this.radius < 0) {
+      this.x = this.radius;
     }
-    else if (this.y + this.radius > yMax - height) {
-      this.y -= this.speed;
-      enviormentBack.y += this.speed;
+    if (this.x + this.radius > maxX) {
+      this.x = maxX - this.radius;
     }
-    else{
-      if (keyIsDown(83)) { //s
-        this.y += this.speed;
-        enviormentBack.x -= this.speed;
-      }
-      if (keyIsDown(87)) { //w
-        this.y -= this.speed;
-        enviormentBack.y += this.speed;
-      }
+    if (this.y - this.radius < 0) {
+      this.y = this.radius;
     }
-
-
-
-    // // prevent the player from flying off the screen
-    // if (this.x - this.radius < 0) {
-    //   this.x = this.radius;
-    // }
-    // if (this.x + this.radius > width) {
-    //   this.x = width - this.radius;
-    // }
-    // if (this.y - this.radius < 0) {
-    //   this.y = this.radius;
-    // }
-    // if (this.y + this.radius > height) {
-    //   this.y = height - this.radius;
-    // }
+    if (this.y + this.radius > maxY) {
+      this.y = maxY - this.radius;
+    }
   }
-
+  
   radius(){
     this.radius += 3;
   }
@@ -343,8 +317,8 @@ class Player{
 
 class Food{
   constructor(){ 
-    this.x = random(0, 1000);
-    this.y = random(0, 1000);
+    this.x = random(0, maxX);
+    this.y = random(0, maxY);
     this.radius = random(5, 20);
     this.color = color(random(255), random(255), random(255));
     this.eaten = false;
@@ -432,7 +406,7 @@ function displayWonScreen() {
 
     // displays restart button
     rectMode(CENTER);
-    rect(width/2, height*3/4, 200, 70);
+    rect(width/2, height*3/4, 300, 70);
     fill("white");
     text("PLAY  AGAIN", width/2, height*3/4);
 
