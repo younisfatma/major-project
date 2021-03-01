@@ -6,6 +6,7 @@
 // Rules:
 // use WASD to control character
 // you can hide under the green circle, as soon as you grow larger than the circle you will start to take damage
+// barriers dont work
 
 // start/win screens
 let start = {x: 0, y: 0, isAlive: true,};
@@ -72,8 +73,9 @@ function setup() {
   playerName = window.prompt("Enter player name: ");
   points = 0;
 
-  // Play sound
+  //sound
   bgSound.play();
+  victorySoundOn = false;
 
   // makes objects
   thePlayer = new Player;
@@ -82,6 +84,13 @@ function setup() {
   theObstacles = [];
   let oneObstacle = new Obstacle;
   theObstacles.push(oneObstacle);
+
+  // reset
+  maxX= 1000;
+  maxY = 1000;
+  minY= 0;
+  minX = 0;
+  points = 0;
 }
 
 function draw() {
@@ -98,7 +107,7 @@ function draw() {
   displayWonScreen();
 }
 
-// Start screen
+// start screen
 function displayStart() { 
   if (keyIsPressed) {
     start.isAlive = false;
@@ -111,7 +120,7 @@ function displayStart() {
     textSize(40);
     textAlign(CENTER);
     textStyle(BOLD);
-    text("PRESS ANY KEY TO START", width / 2, height / 2);
+    text("PRESS ANY KEY TO START", width/2, height*3/4);
 
     // buttons for changing skins and colors
     fill("blue");
@@ -133,7 +142,7 @@ function displayStart() {
     // display player
     thePlayer.display();
 
-    // Time value
+    // time value
     millisSinceGameStarted = millis();
   }
 }
@@ -181,16 +190,13 @@ function mousePressed() {
   }
 
   // restart button
-  if(win === true && mouseX >=286 && mouseX <=591 && mouseY >=224 && mouseY<575 && reset === true){
+  if(win === true && mouseX >= width/2-100 && mouseX <=width/2+100 && mouseY >= height*3/4-35 && mouseY<= height*3/4+35 && reset === true){
     setup();
     start.isAlive = true;
     reset = false;
     seconds = 0;
     minutes= 0;
     lastSecond = 0;
-    // for (let i = theFoods.length-1; i >=0; i--){
-    //   theFoods.splice(i ,1);
-    // }
   }
 }
 
@@ -202,6 +208,7 @@ function spawnFood(){
   }
 }
 
+// spawns obstacle
 function spawnObstacle(){
   if (seconds - secondsSinceSpawnedObstacle >= 10){
     let oneObstacle = new Obstacle;
@@ -247,7 +254,7 @@ class Player{
     ellipse(this.x, this.y, this.radius*2, this.radius*2);
     ellipseMode(CENTER);
 
-    // Character skins
+    // character skins
     imageMode(CENTER);
     image(images[this.imagenumber], this.x, this.y, this.radius*2, this.radius*2 );
 
@@ -263,9 +270,8 @@ class Player{
       for (let i = theObstacles.length-1; i >= 0; i--){
         theObstacles[i].x += this.speed;
       }
-      maxX += this.speed;
-      maxX -= this.speed;
-    //move barrier
+      // maxX += this.speed;
+      // minX -= this.speed;
     }
     if (keyIsDown(68)) { ///d
       for (let i = theFoods.length-1; i >= 0; i--){
@@ -274,8 +280,8 @@ class Player{
       for (let i = theObstacles.length-1; i >= 0; i--){
         theObstacles[i].x -= this.speed;
       }
-      maxX += this.speed;
-      minX += this.speed;
+      // maxX -= this.speed;
+      // minX += this.speed;
     }
     if (keyIsDown(87)) { //w
    
@@ -285,9 +291,8 @@ class Player{
       for (let i = theObstacles.length-1; i >= 0; i--){
         theObstacles[i].y += this.speed;
       }
-      maxY -= this.speed;
-      minY -= this.speed;
-      // this.y -= this.speed;
+      // maxY += this.speed;
+      // minY -= this.speed;
     }
     if (keyIsDown(83)) { //s
       for (let i = theFoods.length-1; i >= 0; i--){
@@ -296,29 +301,29 @@ class Player{
       for (let i = theObstacles.length-1; i >= 0; i--){
         theObstacles[i].y -= this.speed;
       }
-      // this.y += this.speed;
-      maxY += this.speed;
-      minY += this.speed;
+      // maxY -= this.speed;
+      // minY += this.speed;
     }
-    // prevent the player from flying off the screen
-    if (this.x - this.radius < minX) {
-      this.x += this.speed;
-      //this.radius;
-    }
-    if (this.x + this.radius > maxX) {
-      this.x -= this.speed;
-      //maxX - this.radius;
-    }
-    if (this.y - this.radius < minY) {
-      this.y += this.speed;
-      //this.radius;
-    }
-    if (this.y + this.radius > maxY) {
-      this.y -= this.speed;
-      //maxY - this.radius;
-    }
-    console.log(maxX, maxY, minX,minY, this.x, this.y);
-    console.log(mouseX, mouseY);
+
+    // // prevent the player from flying off the screen
+    // if (this.x - this.radius <= minX) {
+    //   // this.x += this.speed;
+    //   console.log("minX");
+    // }
+    // if (this.x + this.radius >= maxX) {
+    //   // this.x -= this.speed;
+    //   console.log("maxX");
+    // }
+    // if (this.y - this.radius < minY) {
+    //   // this.y += this.speed;
+    //   console.log("minY");
+    // }
+    // if (this.y + this.radius > maxY) {
+    //   // this.y -= this.speed;
+    //   console.log("maxY");
+    // }
+    // console.log(maxX, maxY, minX,minY, this.x, this.y);
+    // console.log(mouseX, mouseY);
   }
   
   radius(){
@@ -349,8 +354,10 @@ class Food{
       eatSound.play();
       console.log("yum");
       thePlayer.radius += this.radius/2;
-      // thePlayer.speed-=0.05;
       points += this.radius/2;
+      if (thePlayer.speed >1){
+        thePlayer.speed -= 0.02;
+      }
     }
   }
 }
@@ -386,9 +393,9 @@ class Obstacle{
   }
 }
 
-// If the player has grown more than width/6 the player wins the game
+// If the player has grown more than width/4 the player wins the game
 function displayWonScreen() {
-  if (thePlayer.radius*2 > width / 2) {
+  if (thePlayer.radius*2 > width /4) {
     // Victory sound 
     if(victorySoundOn === false){
       bgSound.pause();

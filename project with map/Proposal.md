@@ -13,5 +13,5 @@ I will continue working on my previous game and add improvements.
 - ~~background music~~
 - ~~sound when food is eaten~~
 - ~~some sort of point system~~
-- a map //move objects 
+- a map 
 - other "players"

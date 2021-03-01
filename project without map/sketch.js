@@ -12,7 +12,7 @@ let start = {x: 0, y: 0, isAlive: true,};
 let win = true;
 let reset;
 
-// Used to tell the time since the game started
+// used to tell the time since the game started
 let seconds = 0;
 let minutes= 0;
 let lastSecond = 0;
@@ -61,16 +61,22 @@ function preload(){
 
   // Font
   font = loadFont("assets/ARCADECLASSIC.TTF");
+
+
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   playerName = window.prompt("Enter player name: ");
-  //reset values
+
+  // reset 
   points = 0;
   theFoods = [];
+  theObstacles = [];
+  victorySoundOn = false;
 
-  // Play sound
+
+  // play sound
   bgSound.play();
 
   // makes objects
@@ -93,7 +99,7 @@ function draw() {
   displayWonScreen();
 }
 
-// Start screen
+// start screen
 function displayStart() { 
   if (keyIsPressed) {
     start.isAlive = false;
@@ -128,7 +134,7 @@ function displayStart() {
     // display player
     thePlayer.display();
 
-    // Time value
+    // time value
     millisSinceGameStarted = millis();
   }
 }
@@ -175,7 +181,7 @@ function mousePressed() {
   }
 
   // restart button
-  if(win === true && mouseX >=286 && mouseX <=591 && mouseY >=224 && mouseY<575 && reset === true){
+  if(win === true && mouseX >= width/2-100 && mouseX <=width/2+100 && mouseY >= height*3/4-35 && mouseY<= height*3/4+35 && reset === true){
     setup();
     start.isAlive = true;
     reset = false;
@@ -335,7 +341,7 @@ class Obstacle{
   }
 }
 
-// If the player has grown more than width/6 the player wins the game
+// if the player has grown more than width/6 the player wins the game
 function displayWonScreen() {
   if (thePlayer.radius*2 > width / 4) {
     // Victory sound 
@@ -361,7 +367,7 @@ function displayWonScreen() {
       text("point  "+ points.toPrecision(4), width/2, height/2);
     }
     else{
-      text("points   " + points.toPrecision(2), width/2, height/2);
+      text("points " + points.toPrecision(2), width/2, height/2);
     }
 
     // displays restart button
