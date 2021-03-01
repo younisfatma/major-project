@@ -66,7 +66,9 @@ function preload(){
 function setup() {
   createCanvas(windowWidth, windowHeight);
   playerName = window.prompt("Enter player name: ");
+  //reset values
   points = 0;
+  theFoods = [];
 
   // Play sound
   bgSound.play();
@@ -177,7 +179,6 @@ function mousePressed() {
     setup();
     start.isAlive = true;
     reset = false;
-    console.log(mouseX, mouseY);
     seconds = 0;
     minutes= 0;
     lastSecond = 0;

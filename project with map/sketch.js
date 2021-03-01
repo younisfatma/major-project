@@ -43,6 +43,8 @@ let theObstacles;
 let points = 0;
 let maxX= 1000;
 let maxY = 1000;
+let minY= 0;
+let minX = 0;
 let secondsSinceSpawnedObstacle = 0;
 
 function preload(){
@@ -183,7 +185,6 @@ function mousePressed() {
     setup();
     start.isAlive = true;
     reset = false;
-    console.log(mouseX, mouseY);
     seconds = 0;
     minutes= 0;
     lastSecond = 0;
@@ -263,15 +264,18 @@ class Player{
         theObstacles[i].x += this.speed;
       }
       maxX += this.speed;
-        //move barrier
+      maxX -= this.speed;
+    //move barrier
     }
-    if (keyIsDown(68)) { ///s
+    if (keyIsDown(68)) { ///d
       for (let i = theFoods.length-1; i >= 0; i--){
         theFoods[i].x -= this.speed;
       }
       for (let i = theObstacles.length-1; i >= 0; i--){
         theObstacles[i].x -= this.speed;
-      }maxX -= this.speed;
+      }
+      maxX += this.speed;
+      minX += this.speed;
     }
     if (keyIsDown(87)) { //w
    
@@ -281,33 +285,40 @@ class Player{
       for (let i = theObstacles.length-1; i >= 0; i--){
         theObstacles[i].y += this.speed;
       }
-      maxY += this.speed;
+      maxY -= this.speed;
+      minY -= this.speed;
       // this.y -= this.speed;
     }
-    if (keyIsDown(83)) { //d
+    if (keyIsDown(83)) { //s
       for (let i = theFoods.length-1; i >= 0; i--){
         theFoods[i].y -= this.speed;
       }
       for (let i = theObstacles.length-1; i >= 0; i--){
         theObstacles[i].y -= this.speed;
-  
-      maxY -= this.speed;
+      }
       // this.y += this.speed;
+      maxY += this.speed;
+      minY += this.speed;
     }
-
     // prevent the player from flying off the screen
-    if (this.x - this.radius < 0) {
-      this.x = this.radius;
+    if (this.x - this.radius < minX) {
+      this.x += this.speed;
+      //this.radius;
     }
     if (this.x + this.radius > maxX) {
-      this.x = maxX - this.radius;
+      this.x -= this.speed;
+      //maxX - this.radius;
     }
-    if (this.y - this.radius < 0) {
-      this.y = this.radius;
+    if (this.y - this.radius < minY) {
+      this.y += this.speed;
+      //this.radius;
     }
     if (this.y + this.radius > maxY) {
-      this.y = maxY - this.radius;
+      this.y -= this.speed;
+      //maxY - this.radius;
     }
+    console.log(maxX, maxY, minX,minY, this.x, this.y);
+    console.log(mouseX, mouseY);
   }
   
   radius(){
@@ -338,7 +349,7 @@ class Food{
       eatSound.play();
       console.log("yum");
       thePlayer.radius += this.radius/2;
-      thePlayer.speed-=0.05;
+      // thePlayer.speed-=0.05;
       points += this.radius/2;
     }
   }
